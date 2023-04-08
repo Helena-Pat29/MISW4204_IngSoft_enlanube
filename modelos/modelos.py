@@ -4,6 +4,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from werkzeug.datastructures import FileStorage
 
 import enum
+import datetime
 
 db = SQLAlchemy()
 
@@ -61,7 +62,9 @@ class Upload(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre_archivo = db.Column(db.String(128))
     data = db.Column(db.LargeBinary)
-    # formato_final= db.Column(db.String(30))
+    new_format= db.Column(db.String(30))
+    status=db.Column(db.Enum(EstadoConversion))
+    time_stamp= db.Column(db.DateTime, default=datetime.datetime.now)
 
 
 class EnumADiccionario(fields.Field):

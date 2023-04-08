@@ -116,6 +116,7 @@ class ArchivoSchema(SQLAlchemyAutoSchema):
 
 
 class UploadSchema(SQLAlchemyAutoSchema):
+    status = EnumADiccionario(attribute='estado_conversion')
     class Meta:
         model = Upload
         include_relationships = True
@@ -124,4 +125,8 @@ class UploadSchema(SQLAlchemyAutoSchema):
 
     id = fields.String()
     nombre_archivo = fields.String()
+    #Cambios get
+    data = fields.Raw(load_only=True)
+    new_format = fields.String()
+    time_stamp=fields.String()
     # formato_final = fields.String()

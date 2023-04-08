@@ -55,7 +55,7 @@ class VistaLogIn(Resource):
 
 
 class VistaTasks(Resource):
-
+    @jwt_required()
     def post(self):
         file = request.files['file']
         new_format_input=request.form['newFormat']
@@ -68,7 +68,7 @@ class VistaTasks(Resource):
         return {"File uploaded=": filename}
 
     def get(self):
-        return None
+        return [upload_schema.dump(upload) for upload in Upload.query.all()]
 
 class VistaTaskId(Resource):
     def get(self):

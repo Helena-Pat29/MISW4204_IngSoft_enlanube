@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource
 import hashlib
 
-from modelos import db, Upload, UploadSchema, Usuario, UsuarioSchema
+from modelos import db, Upload, UploadSchema, Usuario, UsuarioSchema, EstadoConversion
 
 upload_schema = UploadSchema()
 usuario_schema = UsuarioSchema()
@@ -58,7 +58,10 @@ class VistaTasks(Resource):
 
     def post(self):
         file = request.files['file']
-        upload = Upload(nombre_archivo=file.filename, data=file.read())
+        new_format_input=request.form['newFormat']
+        print("El formato nuevo es:", new_format_input)
+        status_init=EstadoConversion.UPLOADED
+        upload = Upload(nombre_archivo=file.filename, new_format =new_format_input, status= status_init, data=file.read())
         db.session.add(upload)
         db.session.commit()
         filename = file.filename

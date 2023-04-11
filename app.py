@@ -3,8 +3,8 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
-from modelos import db
-from vistas import VistaSignIn, VistaLogIn, VistaTasks, VistaTaskId, VistaFiles, VistaUsuarios, VistaUsuario
+from  modelos import db
+from  vistas import VistaSignIn, VistaLogIn, VistaTasks, VistaTaskId, VistaFiles, VistaUsuarios, VistaUsuario
 
 UPLOAD_FOLDER = 'C:\tmp\Sist_Conv_Files'
 app = Flask(__name__)

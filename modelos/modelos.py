@@ -4,6 +4,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from werkzeug.datastructures import FileStorage
 
 import enum
+import datetime
 
 db = SQLAlchemy()
 
@@ -36,7 +37,7 @@ class Usuario(db.Model):
     # def __repr__(self):
     #     return "{}-{}-{}".format(self.usuario_nombre,self.contrasena,self.correo)
 
-
+#REVISAR ESTA TABLA
 class TareaConversion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     extension_final = db.Column(db.Enum(ExtensionFinal))
@@ -46,13 +47,6 @@ class TareaConversion(db.Model):
     archivos = db.relationship('Archivo')
 
 
-class Archivo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre_original = db.Column(db.String(128))
-    archivo_original = db.Column(db.String(128))
-    fecha_creacion = db.Column(db.Date)
-    estado_conversion = db.Column(db.Enum(EstadoConversion))
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
 
 # upload files in flask DB
 
@@ -61,7 +55,9 @@ class Upload(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre_archivo = db.Column(db.String(128))
     data = db.Column(db.LargeBinary)
-    # formato_final= db.Column(db.String(30))
+    new_format= db.Column(db.String(30))
+    status=db.Column(db.Enum(EstadoConversion))
+    time_stamp= db.Column(db.DateTime, default=datetime.datetime.now)
 
 
 class EnumADiccionario(fields.Field):
@@ -97,22 +93,8 @@ class TareaConversionSchema(SQLAlchemyAutoSchema):
     id = fields.String()
 
 
-class ArchivoSchema(SQLAlchemyAutoSchema):
-    estado_conversion = EnumADiccionario(attribute='estado_conversion')
-
-    class Meta:
-        model = Archivo
-        include_relationships = True
-        include_fk = True
-        load_instance = True
-
-    id = fields.String()
-    nombre_original = fields.String()
-    archivo_original = fields.String()
-    fecha_creacion = fields.String()
-
-
 class UploadSchema(SQLAlchemyAutoSchema):
+    status = EnumADiccionario(attribute='estado_conversion')
     class Meta:
         model = Upload
         include_relationships = True
@@ -121,4 +103,8 @@ class UploadSchema(SQLAlchemyAutoSchema):
 
     id = fields.String()
     nombre_archivo = fields.String()
+    #Cambios get
+    data = fields.Raw(load_only=True)
+    new_format = fields.String()
+    time_stamp=fields.String()
     # formato_final = fields.String()

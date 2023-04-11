@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource
 import hashlib
 
-from modelos import db, Upload, UploadSchema, Usuario, UsuarioSchema
+from modelos import db, Upload, UploadSchema, Usuario, UsuarioSchema, EstadoConversion
 
 upload_schema = UploadSchema()
 usuario_schema = UsuarioSchema()
@@ -12,6 +12,7 @@ usuario_schema = UsuarioSchema()
 class VistaSignIn(Resource):
 
     # solo el post hace parte de la entrega
+    # Pte doble contraseña (Sebas)
     def post(self):
         usuario = Usuario.query.filter(Usuario.correo == request.json["correo"]).first()
         if usuario is None:
@@ -24,20 +25,7 @@ class VistaSignIn(Resource):
             return {"mensaje": "usuario creado exitosamente", "id": nuevo_usuario.id}
         else:
             return "El usuario ya existe", 404
-
-    def put(self, id_usuario):
-        usuario = Usuario.query.get_or_404(id_usuario)
-        usuario.contrasena = request.json.get("contrasena", usuario.contrasena)
-        usuario.correo = request.json.get("correo", usuario.correo)
-        db.session.commit()
-        return usuario_schema.dump(usuario)
-
-    def delete(self, id_usuario):
-        usuario = Usuario.query.get_or_404(id_usuario)
-        db.session.delete(usuario)
-        db.session.commit()
-        return '', 204
-
+        
 
 class VistaLogIn(Resource):
 
@@ -53,19 +41,26 @@ class VistaLogIn(Resource):
             token_de_acceso = create_access_token(identity=correo.id)
             return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso, "id": correo.id}
 
+# Pte: Modificar desde el Post la tabla de tarea de conversion (Carlos)
+# Llamado a parte asincrona (Post) (Sergio)
+# Incluir UserID (Sebas)
 
 class VistaTasks(Resource):
-
+    @jwt_required()
     def post(self):
         file = request.files['file']
-        upload = Upload(nombre_archivo=file.filename, data=file.read())
+        new_format_input=request.form['newFormat']
+        print("El formato nuevo es:", new_format_input)
+        status_init=EstadoConversion.UPLOADED
+        upload = Upload(nombre_archivo=file.filename, new_format =new_format_input, status= status_init, data=file.read())
         db.session.add(upload)
         db.session.commit()
         filename = file.filename
         return {"File uploaded=": filename}
-
+    
+#Incluir parametros en el get (Helena)
     def get(self):
-        return None
+        return [upload_schema.dump(upload) for upload in Upload.query.all()]
 
 class VistaTaskId(Resource):
     def get(self):
@@ -78,38 +73,4 @@ class VistaFiles(Resource):
     def get(self):
         return None
 
-class VistaUsuarios(Resource):
-    @jwt_required()
-    def get(self):
-        return [usuario_schema.dump(usuario) for usuario in Usuario.query.all()]
 
-    @jwt_required()
-    def post(self):
-        nuevo_usuario = Usuario(usuario_nombre=request.json['usuario_nombre'], \
-                                contrasena=request.json['contrasena'], \
-                                correo=request.json['correo'])
-        db.session.add(nuevo_usuario)
-        db.session.commit()
-        return usuario_schema.dump(nuevo_usuario)
-
-
-class VistaUsuario(Resource):
-    @jwt_required()
-    def get(self, id_usuario):
-        return usuario_schema.dump(Usuario.query.get_or_404(id_usuario))
-
-    @jwt_required()
-    def put(self, id_usuario):
-        usuario = Usuario.query.get_or_404(id_usuario)
-        usuario.usuario_nombre = request.json.get('usuario_nombre', usuario.usuario_nombre)
-        usuario.contrasena = request.json.get('contrasena', usuario.contrasena)
-        usuario.correo = request.json.get('correo', usuario.correo)
-        db.session.commit()
-        return usuario_schema.dump(usuario)
-
-    @jwt_required()
-    def delete(self, id_usuario):
-        usuario = Usuario.query.get_or_404(id_usuario)
-        db.session.delete(usuario)
-        db.session.commit()
-        return 'Operación exitosa', 204

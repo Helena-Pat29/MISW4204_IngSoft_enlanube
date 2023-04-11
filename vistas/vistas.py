@@ -25,7 +25,7 @@ class VistaSignIn(Resource):
             return {"mensaje": "usuario creado exitosamente", "id": nuevo_usuario.id}
         else:
             return "El usuario ya existe", 404
-        
+
 
 class VistaLogIn(Resource):
 
@@ -41,6 +41,7 @@ class VistaLogIn(Resource):
             token_de_acceso = create_access_token(identity=correo.id)
             return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso, "id": correo.id}
 
+
 # Pte: Modificar desde el Post la tabla de tarea de conversion (Carlos)
 # Llamado a parte asincrona (Post) (Sergio)
 # Incluir UserID (Sebas)
@@ -49,18 +50,19 @@ class VistaTasks(Resource):
     @jwt_required()
     def post(self):
         file = request.files['file']
-        new_format_input=request.form['newFormat']
+        new_format_input = request.form['newFormat']
         print("El formato nuevo es:", new_format_input)
-        status_init=EstadoConversion.UPLOADED
-        upload = Upload(nombre_archivo=file.filename, new_format =new_format_input, status= status_init, data=file.read())
+        status_init = EstadoConversion.UPLOADED
+        upload = Upload(nombre_archivo=file.filename, new_format=new_format_input, status=status_init, data=file.read())
         db.session.add(upload)
         db.session.commit()
         filename = file.filename
         return {"File uploaded=": filename}
-    
-#Incluir parametros en el get (Helena)
+
+    # Incluir parametros en el get (Helena)
     def get(self):
         return [upload_schema.dump(upload) for upload in Upload.query.all()]
+
 
 class VistaTaskId(Resource):
     def get(self):
@@ -69,8 +71,7 @@ class VistaTaskId(Resource):
     def delete(self):
         return None
 
+
 class VistaFiles(Resource):
     def get(self):
         return None
-
-

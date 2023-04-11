@@ -37,7 +37,7 @@ class Usuario(db.Model):
     # def __repr__(self):
     #     return "{}-{}-{}".format(self.usuario_nombre,self.contrasena,self.correo)
 
-
+#REVISAR ESTA TABLA
 class TareaConversion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     extension_final = db.Column(db.Enum(ExtensionFinal))
@@ -47,13 +47,6 @@ class TareaConversion(db.Model):
     archivos = db.relationship('Archivo')
 
 
-class Archivo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre_original = db.Column(db.String(128))
-    archivo_original = db.Column(db.String(128))
-    fecha_creacion = db.Column(db.Date)
-    estado_conversion = db.Column(db.Enum(EstadoConversion))
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
 
 # upload files in flask DB
 
@@ -98,21 +91,6 @@ class TareaConversionSchema(SQLAlchemyAutoSchema):
         load_instance = True
 
     id = fields.String()
-
-
-class ArchivoSchema(SQLAlchemyAutoSchema):
-    estado_conversion = EnumADiccionario(attribute='estado_conversion')
-
-    class Meta:
-        model = Archivo
-        include_relationships = True
-        include_fk = True
-        load_instance = True
-
-    id = fields.String()
-    nombre_original = fields.String()
-    archivo_original = fields.String()
-    fecha_creacion = fields.String()
 
 
 class UploadSchema(SQLAlchemyAutoSchema):

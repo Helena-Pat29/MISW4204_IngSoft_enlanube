@@ -3,8 +3,8 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
-from  modelos import db
-from  vistas import VistaSignIn, VistaLogIn, VistaTasks, VistaTaskId, VistaFiles, VistaUsuarios, VistaUsuario
+from modelos import db
+from vistas import VistaSignIn, VistaLogIn, VistaTasks, VistaTaskId, VistaFiles
 
 UPLOAD_FOLDER = 'C:\tmp\Sist_Conv_Files'
 app = Flask(__name__)
@@ -33,8 +33,6 @@ api.add_resource(VistaLogIn, '/api/auth/login')
 api.add_resource(VistaTasks, '/api/tasks')
 api.add_resource(VistaTaskId, '/api/tasks/<int:id_task>')
 api.add_resource(VistaFiles, '/api/files/<string:filename>')
-api.add_resource(VistaUsuarios, '/usuarios')
-api.add_resource(VistaUsuario, '/usuario/<int:id_usuario>')
 
 if __name__ == '__main__':
     app.run()

@@ -31,21 +31,18 @@ class Usuario(db.Model):
     contrasena = db.Column(db.String(30))
     correo = db.Column(db.String(50), unique=True)
     tareas = db.relationship('TareaConversion', cascade='all, delete, delete-orphan')
-    archivos = db.relationship('Archivo', cascade='all, delete, delete-orphan')
 
     # revisar la relación Usuario/Archivos
     # def __repr__(self):
     #     return "{}-{}-{}".format(self.usuario_nombre,self.contrasena,self.correo)
 
-#REVISAR ESTA TABLA
+
+# REVISAR ESTA TABLA
 class TareaConversion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     extension_final = db.Column(db.Enum(ExtensionFinal))
     estado_tarea = db.Column(db.Enum(EstadoTarea))
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
-    archivo_id = db.Column(db.Integer, db.ForeignKey('archivo.id'))
-    archivos = db.relationship('Archivo')
-
 
 
 # upload files in flask DB
@@ -55,9 +52,9 @@ class Upload(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre_archivo = db.Column(db.String(128))
     data = db.Column(db.LargeBinary)
-    new_format= db.Column(db.String(30))
-    status=db.Column(db.Enum(EstadoConversion))
-    time_stamp= db.Column(db.DateTime, default=datetime.datetime.now)
+    new_format = db.Column(db.String(30))
+    status = db.Column(db.Enum(EstadoConversion))
+    time_stamp = db.Column(db.DateTime, default=datetime.datetime.now)
 
 
 class EnumADiccionario(fields.Field):
@@ -95,6 +92,7 @@ class TareaConversionSchema(SQLAlchemyAutoSchema):
 
 class UploadSchema(SQLAlchemyAutoSchema):
     status = EnumADiccionario(attribute='estado_conversion')
+
     class Meta:
         model = Upload
         include_relationships = True
@@ -103,8 +101,8 @@ class UploadSchema(SQLAlchemyAutoSchema):
 
     id = fields.String()
     nombre_archivo = fields.String()
-    #Cambios get
+    # Cambios get
     data = fields.Raw(load_only=True)
     new_format = fields.String()
-    time_stamp=fields.String()
+    time_stamp = fields.String()
     # formato_final = fields.String()

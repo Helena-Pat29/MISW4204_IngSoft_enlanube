@@ -32,17 +32,15 @@ class Usuario(db.Model):
     correo = db.Column(db.String(50), unique=True)
     tareas = db.relationship('TareaConversion', cascade='all, delete, delete-orphan')
 
-    # revisar la relación Usuario/Archivos
-    # def __repr__(self):
-    #     return "{}-{}-{}".format(self.usuario_nombre,self.contrasena,self.correo)
-
 
 # REVISAR ESTA TABLA
 class TareaConversion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    extension_final = db.Column(db.Enum(ExtensionFinal))
-    estado_tarea = db.Column(db.Enum(EstadoTarea))
+    new_format = db.Column(db.String(30))
+    status = db.Column(db.Enum(EstadoConversion))
+    time_stamp = db.Column(db.DateTime, default=datetime.datetime.now)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
+    upload_id = db.Column(db.Integer, db.ForeignKey('upload.id'))
 
 
 # upload files in flask DB
@@ -52,9 +50,7 @@ class Upload(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre_archivo = db.Column(db.String(128))
     data = db.Column(db.LargeBinary)
-    new_format = db.Column(db.String(30))
-    status = db.Column(db.Enum(EstadoConversion))
-    time_stamp = db.Column(db.DateTime, default=datetime.datetime.now)
+    tareas = db.relationship('TareaConversion', cascade='all, delete, delete-orphan')
 
 
 class EnumADiccionario(fields.Field):
@@ -105,4 +101,3 @@ class UploadSchema(SQLAlchemyAutoSchema):
     data = fields.Raw(load_only=True)
     new_format = fields.String()
     time_stamp = fields.String()
-    # formato_final = fields.String()

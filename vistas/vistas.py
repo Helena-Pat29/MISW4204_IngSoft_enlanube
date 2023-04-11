@@ -1,12 +1,16 @@
+import datetime
+
+import jwt
 from flask import request
-from flask_jwt_extended import jwt_required, create_access_token
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
 import hashlib
 
-from modelos import db, Upload, UploadSchema, Usuario, UsuarioSchema, EstadoConversion
+from modelos import db, Upload, UploadSchema, Usuario, UsuarioSchema, EstadoConversion, TareaConversion, ExtensionFinal
 
 upload_schema = UploadSchema()
 usuario_schema = UsuarioSchema()
+
 
 
 class VistaSignIn(Resource):
@@ -21,7 +25,6 @@ class VistaSignIn(Resource):
                                     correo=request.json["correo"])
             db.session.add(nuevo_usuario)
             db.session.commit()
-            token_de_acceso = create_access_token(identity=nuevo_usuario.id)
             return {"mensaje": "usuario creado exitosamente", "id": nuevo_usuario.id}
         else:
             return "El usuario ya existe", 404
@@ -32,14 +35,14 @@ class VistaLogIn(Resource):
     def post(self):
 
         contrasena_encriptada = hashlib.md5(request.json["contrasena"].encode('utf-8')).hexdigest()
-        correo = Usuario.query.filter(Usuario.correo == request.json["correo"],
+        usuario = Usuario.query.filter(Usuario.correo == request.json["correo"],
                                       Usuario.contrasena == contrasena_encriptada).first()
         db.session.commit()
-        if correo is None:
+        if usuario is None:
             return "Error de Autenticación: El usuario no existe en el sistema", 404
         else:
-            token_de_acceso = create_access_token(identity=correo.id)
-            return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso, "id": correo.id}
+            token_de_acceso = create_access_token(identity={"usuario": usuario.id})
+            return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso, "id": usuario.id}
 
 
 # Pte: Modificar desde el Post la tabla de tarea de conversion (Carlos)
@@ -51,10 +54,22 @@ class VistaTasks(Resource):
     def post(self):
         file = request.files['file']
         new_format_input = request.form['newFormat']
-        print("El formato nuevo es:", new_format_input)
         status_init = EstadoConversion.UPLOADED
-        upload = Upload(nombre_archivo=file.filename, new_format=new_format_input, status=status_init, data=file.read())
+        # usuario
+        upload = Upload(
+            nombre_archivo=file.filename,
+            data=file.read())
         db.session.add(upload)
+        db.session.commit()
+
+        tarea = TareaConversion(
+            new_format=new_format_input,
+            status=status_init,
+            time_stamp=datetime.datetime.now(),
+            usuario_id=get_jwt_identity()['usuario'],
+            upload_id=upload.id
+        )
+        db.session.add(tarea)
         db.session.commit()
         filename = file.filename
         return {"File uploaded=": filename}

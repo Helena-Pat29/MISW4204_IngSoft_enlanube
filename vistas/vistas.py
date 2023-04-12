@@ -12,7 +12,8 @@ from werkzeug.utils import secure_filename
 import os
 
 usuario_schema = UsuarioSchema()
-tarea_conversion_schema = TareaConversionSchema(many=True)
+tarea_conversion_schema_single = TareaConversionSchema()
+tarea_conversion_schema_many = TareaConversionSchema(many=True)
 
 class VistaSignUp(Resource):
 
@@ -68,7 +69,7 @@ class VistaTasks(Resource):
         else:
             tasks = TareaConversion.query.filter_by(usuario_id=user_id).order_by(TareaConversion.id.desc()).limit(max_results).all()
 
-        serialized_tasks = tarea_conversion_schema.dump(tasks)
+        serialized_tasks = tarea_conversion_schema_many.dump(tasks)
         return serialized_tasks, 200
 
     @jwt_required()
@@ -108,11 +109,28 @@ class VistaTasks(Resource):
 
 
 class VistaTaskId(Resource):
-    def get(self):
-        return None
+    @jwt_required()
+    def get(self, id_task):
+        user_id = get_jwt_identity()['usuario']
+        task = TareaConversion.query.filter_by(id=id_task, usuario_id=user_id).first()
 
-    def delete(self):
-        return None
+        if not task:
+            return {"mensaje": "Tarea no encontrada"}, 404
+
+        return tarea_conversion_schema_single.dump(task), 200
+    
+    @jwt_required()
+    def delete(self, id_task):
+        user_id = get_jwt_identity()['usuario']
+        task = TareaConversion.query.filter_by(id=id_task, usuario_id=user_id).first()
+
+        if not task:
+            return {'mensaje': 'Tarea no encontrada'}, 404
+
+        db.session.delete(task)
+        db.session.commit()
+
+        return {'mensaje': 'Tarea eliminada exitosamente'}, 200
 
 
 class VistaFiles(Resource):

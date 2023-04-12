@@ -77,9 +77,5 @@ class TareaConversionSchema(SQLAlchemyAutoSchema):
         include_relationships = True
         include_fk = True
         load_instance = True
-
-    id = fields.String()
-    #nombre_archivo = fields.String()
-    #data = fields.Raw(load_only=True)
-    #new_format = fields.String()
-    #time_stamp = fields.String()
+    
+    data = fields.Raw(load_only=True)

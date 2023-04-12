@@ -27,6 +27,7 @@ jwt = JWTManager(app)
 # validar si esto se necesita
 cors = CORS(app)
 
+
 api = Api(app)
 api.add_resource(VistaSignIn, '/api/auth/signup')
 api.add_resource(VistaLogIn, '/api/auth/login')

@@ -1,13 +1,19 @@
+import variables
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow import fields, Schema
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from sqlalchemy_utils import database_exists, create_database, drop_database
 from werkzeug.datastructures import FileStorage
 
 import enum
 import datetime
 
+
 db = SQLAlchemy()
 
+if not database_exists(variables.DB_URL):
+    print('Creating database.')
+    create_database(variables.DB_URL)
 
 class ExtensionFinal(enum.Enum):
     ZIP = 1

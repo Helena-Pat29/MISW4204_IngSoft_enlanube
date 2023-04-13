@@ -1,90 +1,136 @@
 import datetime
-
 import jwt
-from flask import request
+
+from celery_worker import compress_file_and_update_status
+from flask import request, jsonify, current_app
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
-import hashlib
+from modelos import db, Usuario, UsuarioSchema, EstadoConversion, TareaConversion, ExtensionFinal
+from modelos.modelos import EstadoTarea, TareaConversionSchema
+from utils import check_password, set_password
+from werkzeug.utils import secure_filename
+import os
 
-from modelos import db, Upload, UploadSchema, Usuario, UsuarioSchema, EstadoConversion, TareaConversion, ExtensionFinal
-
-upload_schema = UploadSchema()
 usuario_schema = UsuarioSchema()
+tarea_conversion_schema_single = TareaConversionSchema()
+tarea_conversion_schema_many = TareaConversionSchema(many=True)
 
+class VistaSignUp(Resource):
 
-
-class VistaSignIn(Resource):
-
-    # solo el post hace parte de la entrega
-    # Pte doble contraseña (Sebas)
     def post(self):
-        usuario = Usuario.query.filter(Usuario.correo == request.json["correo"]).first()
-        if usuario is None:
-            contrasena_encriptada = hashlib.md5(request.json["contrasena"].encode('utf-8')).hexdigest()
-            nuevo_usuario = Usuario(usuario_nombre=request.json["usuario_nombre"], contrasena=contrasena_encriptada,
-                                    correo=request.json["correo"])
-            db.session.add(nuevo_usuario)
-            db.session.commit()
-            return {"mensaje": "usuario creado exitosamente", "id": nuevo_usuario.id}
-        else:
-            return "El usuario ya existe", 404
+        usuario = request.json.get('usuario_nombre')
+        contrasena1 = request.json.get('contrasena1')
+        contrasena2 = request.json.get('contrasena2')
+        correo = request.json.get('correo')
+
+        if not all([usuario, contrasena1, contrasena2, correo]):
+            return {'mensaje': 'Todos los campos son requeridos'}, 404
+        
+        if contrasena1 != contrasena2:
+            return {'mensaje': 'Las contraseñas no coinciden'}, 404
+        
+        if Usuario.query.filter_by(usuario_nombre=usuario).first() or Usuario.query.filter_by(correo=correo).first():
+            return {'mensaje': 'El usuario o el correo ya existe'}, 409
+        
+        usuario = Usuario(usuario_nombre=usuario, correo=correo, contrasena_encriptada=set_password(contrasena1))
+        db.session.add(usuario)
+        db.session.commit()
+
+        return {'mensaje': 'Usuario creado exitosamente'}, 201
 
 
 class VistaLogIn(Resource):
 
     def post(self):
+        usuario = request.json.get('usuario_nombre')
+        contrasena = request.json.get('contrasena')
 
-        contrasena_encriptada = hashlib.md5(request.json["contrasena"].encode('utf-8')).hexdigest()
-        usuario = Usuario.query.filter(Usuario.correo == request.json["correo"],
-                                      Usuario.contrasena == contrasena_encriptada).first()
-        db.session.commit()
-        if usuario is None:
-            return "Error de Autenticación: El usuario no existe en el sistema", 404
-        else:
-            token_de_acceso = create_access_token(identity={"usuario": usuario.id})
-            return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso, "id": usuario.id}
+        if not usuario or not contrasena:
+            return {'mensaje': 'Usuario y contrasena son requeridos'}, 400
 
+        usuario = Usuario.query.filter_by(usuario_nombre=usuario).first()
 
-# Pte: Modificar desde el Post la tabla de tarea de conversion (Carlos)
-# Llamado a parte asincrona (Post) (Sergio)
-# Incluir UserID (Sebas)
+        if not usuario or not check_password(usuario.contrasena_encriptada, contrasena):
+            return {'mensaje': 'Usuario o contrasena incorrectos'}, 401
+        
+        token_de_acceso = create_access_token(identity={"usuario": usuario.id})
+        return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso}, 200
+
 
 class VistaTasks(Resource):
     @jwt_required()
-    def post(self):
-        file = request.files['file']
-        new_format_input = request.form['newFormat']
-        status_init = EstadoConversion.UPLOADED
-        # usuario
-        upload = Upload(
-            nombre_archivo=file.filename,
-            data=file.read())
-        db.session.add(upload)
-        db.session.commit()
-
-        tarea = TareaConversion(
-            new_format=new_format_input,
-            status=status_init,
-            time_stamp=datetime.datetime.now(),
-            usuario_id=get_jwt_identity()['usuario'],
-            upload_id=upload.id
-        )
-        db.session.add(tarea)
-        db.session.commit()
-        filename = file.filename
-        return {"File uploaded=": filename}
-
-    # Incluir parametros en el get (Helena)
     def get(self):
-        return [upload_schema.dump(upload) for upload in Upload.query.all()]
+        user_id = get_jwt_identity()['usuario']
+        max_results = request.args.get('max', default=None, type=int)
+        order = request.args.get('order', default=0, type=int)
+
+        if order == 0:
+            tasks = TareaConversion.query.filter_by(usuario_id=user_id).order_by(TareaConversion.id.asc()).limit(max_results).all()
+        else:
+            tasks = TareaConversion.query.filter_by(usuario_id=user_id).order_by(TareaConversion.id.desc()).limit(max_results).all()
+
+        serialized_tasks = tarea_conversion_schema_many.dump(tasks)
+        return serialized_tasks, 200
+
+    @jwt_required()
+    def post(self):
+        user_id = get_jwt_identity()['usuario']
+        file = request.files['fileName']
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
+        print(f"File saved at: {file_path}") 
+        new_format_str = request.form.get('newFormat')
+
+        if not all([file, new_format_str]):
+            return {'mensaje': 'Todos los campos son requeridos'}, 400
+
+        try:
+            new_format = ExtensionFinal[new_format_str.upper()]
+        except KeyError:
+            return {'mensaje': 'Formato inválido'}, 400
+        
+        nueva_tarea = TareaConversion(
+            nombre_archivo=filename,
+            estado_tarea=EstadoTarea.DISPONIBLE,
+            estado_conversion=EstadoConversion.UPLOADED,
+            usuario_id=user_id,
+            fecha_creacion=datetime.datetime.now(),
+            extension_final=ExtensionFinal[new_format_str.upper()],
+        )
+
+        db.session.add(nueva_tarea)
+        db.session.commit()
+
+        compress_file_and_update_status.delay(nueva_tarea.id)
+
+        return {'mensaje': 'Tarea creada exitosamente'}, 201
 
 
 class VistaTaskId(Resource):
-    def get(self):
-        return None
+    @jwt_required()
+    def get(self, id_task):
+        user_id = get_jwt_identity()['usuario']
+        task = TareaConversion.query.filter_by(id=id_task, usuario_id=user_id).first()
 
-    def delete(self):
-        return None
+        if not task:
+            return {"mensaje": "Tarea no encontrada"}, 404
+
+        return tarea_conversion_schema_single.dump(task), 200
+    
+    @jwt_required()
+    def delete(self, id_task):
+        user_id = get_jwt_identity()['usuario']
+        task = TareaConversion.query.filter_by(id=id_task, usuario_id=user_id).first()
+
+        if not task:
+            return {'mensaje': 'Tarea no encontrada'}, 404
+
+        db.session.delete(task)
+        db.session.commit()
+
+        return {'mensaje': 'Tarea eliminada exitosamente'}, 200
 
 
 class VistaFiles(Resource):

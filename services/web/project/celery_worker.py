@@ -3,12 +3,14 @@ import zipfile
 import tarfile
 
 from celery import Celery
-from modelos.modelos import EstadoConversion, ExtensionFinal, TareaConversion, db
-from config import app, UPLOAD_FOLDER
+from project.modelos.modelos import EstadoConversion, ExtensionFinal,\
+    TareaConversion, db
+from project.config import app, UPLOAD_FOLDER
 
 celery = Celery("sistema_conversion", broker="redis://localhost:6379/0", backend="redis://localhost:6379/0")
 
 app.app_context().push()
+
 
 @celery.task
 def compress_file_and_update_status(tarea_id):
@@ -29,6 +31,7 @@ def compress_file_and_update_status(tarea_id):
         print(f"Failed to compress the file: {e}")
 
     db.session.commit()
+
 
 def compress_file(tarea):
     input_file = os.path.join(UPLOAD_FOLDER, tarea.nombre_archivo)

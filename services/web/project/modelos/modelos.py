@@ -1,19 +1,12 @@
-import variables
 from flask_sqlalchemy import SQLAlchemy
-from marshmallow import fields, Schema
+from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from sqlalchemy_utils import database_exists, create_database, drop_database
-from werkzeug.datastructures import FileStorage
 
 import enum
 import datetime
 
-
 db = SQLAlchemy()
 
-if not database_exists(variables.DB_URL):
-    print('Creating database.')
-    create_database(variables.DB_URL)
 
 class ExtensionFinal(enum.Enum):
     ZIP = 1
@@ -39,6 +32,7 @@ class Usuario(db.Model):
     correo = db.Column(db.String(120), unique=True, nullable=False)
     contrasena_encriptada = db.Column(db.String(128))
     tareas = db.relationship('TareaConversion', backref='usuario', lazy=True, cascade='all, delete, delete-orphan')
+
 
 class TareaConversion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -83,5 +77,5 @@ class TareaConversionSchema(SQLAlchemyAutoSchema):
         include_relationships = True
         include_fk = True
         load_instance = True
-    
+
     data = fields.Raw(load_only=True)

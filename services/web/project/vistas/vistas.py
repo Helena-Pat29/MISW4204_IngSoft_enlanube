@@ -1,19 +1,19 @@
 import datetime
-import jwt
 
-from celery_worker import compress_file_and_update_status
-from flask import request, jsonify, current_app
+from project.celery_worker import compress_file_and_update_status
+from flask import request, current_app
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
-from modelos import db, Usuario, UsuarioSchema, EstadoConversion, TareaConversion, ExtensionFinal
-from modelos.modelos import EstadoTarea, TareaConversionSchema
-from utils import check_password, set_password
+from project.modelos import db, Usuario, UsuarioSchema, EstadoConversion, TareaConversion, ExtensionFinal
+from project.modelos import EstadoTarea, TareaConversionSchema
+from project.utils import check_password, set_password
 from werkzeug.utils import secure_filename
 import os
 
 usuario_schema = UsuarioSchema()
 tarea_conversion_schema_single = TareaConversionSchema()
 tarea_conversion_schema_many = TareaConversionSchema(many=True)
+
 
 class VistaSignUp(Resource):
 
@@ -25,13 +25,13 @@ class VistaSignUp(Resource):
 
         if not all([usuario, contrasena1, contrasena2, correo]):
             return {'mensaje': 'Todos los campos son requeridos'}, 404
-        
+
         if contrasena1 != contrasena2:
             return {'mensaje': 'Las contraseñas no coinciden'}, 404
-        
+
         if Usuario.query.filter_by(usuario_nombre=usuario).first() or Usuario.query.filter_by(correo=correo).first():
             return {'mensaje': 'El usuario o el correo ya existe'}, 409
-        
+
         usuario = Usuario(usuario_nombre=usuario, correo=correo, contrasena_encriptada=set_password(contrasena1))
         db.session.add(usuario)
         db.session.commit()
@@ -52,7 +52,7 @@ class VistaLogIn(Resource):
 
         if not usuario or not check_password(usuario.contrasena_encriptada, contrasena):
             return {'mensaje': 'Usuario o contrasena incorrectos'}, 401
-        
+
         token_de_acceso = create_access_token(identity={"usuario": usuario.id})
         return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso}, 200
 
@@ -65,9 +65,11 @@ class VistaTasks(Resource):
         order = request.args.get('order', default=0, type=int)
 
         if order == 0:
-            tasks = TareaConversion.query.filter_by(usuario_id=user_id).order_by(TareaConversion.id.asc()).limit(max_results).all()
+            tasks = TareaConversion.query.filter_by(usuario_id=user_id).order_by(TareaConversion.id.asc()).limit(
+                max_results).all()
         else:
-            tasks = TareaConversion.query.filter_by(usuario_id=user_id).order_by(TareaConversion.id.desc()).limit(max_results).all()
+            tasks = TareaConversion.query.filter_by(usuario_id=user_id).order_by(TareaConversion.id.desc()).limit(
+                max_results).all()
 
         serialized_tasks = tarea_conversion_schema_many.dump(tasks)
         return serialized_tasks, 200
@@ -80,7 +82,7 @@ class VistaTasks(Resource):
         file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
-        print(f"File saved at: {file_path}") 
+        print(f"File saved at: {file_path}")
         new_format_str = request.form.get('newFormat')
 
         if not all([file, new_format_str]):
@@ -90,14 +92,14 @@ class VistaTasks(Resource):
             new_format = ExtensionFinal[new_format_str.upper()]
         except KeyError:
             return {'mensaje': 'Formato inválido'}, 400
-        
+
         nueva_tarea = TareaConversion(
             nombre_archivo=filename,
             estado_tarea=EstadoTarea.DISPONIBLE,
             estado_conversion=EstadoConversion.UPLOADED,
             usuario_id=user_id,
             fecha_creacion=datetime.datetime.now(),
-            extension_final=ExtensionFinal[new_format_str.upper()],
+            extension_final=new_format,
         )
 
         db.session.add(nueva_tarea)
@@ -118,7 +120,7 @@ class VistaTaskId(Resource):
             return {"mensaje": "Tarea no encontrada"}, 404
 
         return tarea_conversion_schema_single.dump(task), 200
-    
+
     @jwt_required()
     def delete(self, id_task):
         user_id = get_jwt_identity()['usuario']

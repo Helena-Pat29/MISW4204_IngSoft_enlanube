@@ -30,6 +30,7 @@ A Postman collection is available in the `postman` folder. To import the collect
 
 You should now see the imported collection in Postman, and you can use it to interact with the API.
 
+Additionally you can find the publish documentation here with examples: `https://documenter.getpostman.com/view/1841563/2s93XyU3uk`
 ### Sign Up
 
 To create a new user, send a `POST` request to `http://localhost:8000/api/auth/signup` with the following JSON payload:

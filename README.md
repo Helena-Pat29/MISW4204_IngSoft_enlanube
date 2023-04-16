@@ -16,6 +16,20 @@ This project provides a RESTful API for uploading, compressing, and downloading 
 ## Usage
 
 Keep in mind we configure gunicorn and Ngix, so the application will be running in `http://localhost:8000`
+
+Also take advantage of the Postman collections and tests we run: 
+### Postman Collection
+
+A Postman collection is available in the `postman` folder. To import the collection, follow these steps:
+
+1. Open Postman.
+2. Click on the "Import" button located in the top left corner.
+3. Choose the "File" tab and click "Choose Files" or drag and drop the JSON file.
+4. Select the `postman/File_compressed.postman_collection.json` file from the GitHub project folder.
+5. Click "Import".
+
+You should now see the imported collection in Postman, and you can use it to interact with the API.
+
 ### Sign Up
 
 To create a new user, send a `POST` request to `http://localhost:8000/api/auth/signup` with the following JSON payload:

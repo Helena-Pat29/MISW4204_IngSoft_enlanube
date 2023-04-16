@@ -19,10 +19,10 @@ tarea_conversion_schema_many = TareaConversionSchema(many=True)
 class VistaSignUp(Resource):
 
     def post(self):
-        usuario = request.json.get('usuario_nombre')
-        contrasena1 = request.json.get('contrasena1')
-        contrasena2 = request.json.get('contrasena2')
-        correo = request.json.get('correo')
+        usuario = request.json.get('username')
+        contrasena1 = request.json.get('password1')
+        contrasena2 = request.json.get('password2')
+        correo = request.json.get('email')
 
         if not all([usuario, contrasena1, contrasena2, correo]):
             return {'mensaje': 'Todos los campos son requeridos'}, 404
@@ -43,8 +43,8 @@ class VistaSignUp(Resource):
 class VistaLogIn(Resource):
 
     def post(self):
-        usuario = request.json.get('usuario_nombre')
-        contrasena = request.json.get('contrasena')
+        usuario = request.json.get('username')
+        contrasena = request.json.get('password')
 
         if not usuario or not contrasena:
             return {'mensaje': 'Usuario y contrasena son requeridos'}, 400

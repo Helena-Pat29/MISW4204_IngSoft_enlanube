@@ -2,6 +2,9 @@ from flask_sqlalchemy import SQLAlchemy
 from marshmallow import fields, Schema
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from werkzeug.datastructures import FileStorage
+from sqlalchemy import Enum, event
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import ProgrammingError
 
 import enum
 import datetime
@@ -43,9 +46,6 @@ class TareaConversion(db.Model):
     fecha_creacion = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     fecha_modificacion = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
-
-# upload files in flask DB
-
 
 class EnumADiccionario(fields.Field):
     def _serialize(self, value, attr, obj, **kwargs):

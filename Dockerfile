@@ -19,6 +19,8 @@ RUN apt-get update && \
 # Add this line to copy the wait-for-postgres.sh script
 COPY wait_for_postgres.sh /usr/local/bin/wait_for_postgres.sh
 
+COPY wait_for_db.py /app/wait_for_db.py
+
 # Expose the port the app will run on
 EXPOSE 8000
 

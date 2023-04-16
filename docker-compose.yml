@@ -5,10 +5,10 @@ services:
     build: .
     ports:
       - "8000:8000"
+    command: sh -c "python wait_for_db.py && gunicorn --bind 0.0.0.0:8000 app:app"
     depends_on:
       - db
       - redis
-    command: ["/usr/local/bin/wait_for_postgres.sh", "db", "gunicorn", "-c", "gunicorn.conf.py", "app:app"]
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin

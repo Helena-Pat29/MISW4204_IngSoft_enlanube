@@ -1,8 +1,9 @@
 import datetime
+import logging
 import jwt
-
+from config import UPLOAD_FOLDER, PROCESSED_FOLDER
 from celery_worker import compress_file_and_update_status
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, send_from_directory, make_response
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
 from modelos import db, Usuario, UsuarioSchema, EstadoConversion, TareaConversion, ExtensionFinal
@@ -77,7 +78,7 @@ class VistaTasks(Resource):
         user_id = get_jwt_identity()['usuario']
         file = request.files['fileName']
         filename = secure_filename(file.filename)
-        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
         file.save(file_path)
 
         print(f"File saved at: {file_path}") 
@@ -97,13 +98,14 @@ class VistaTasks(Resource):
             estado_conversion=EstadoConversion.UPLOADED,
             usuario_id=user_id,
             fecha_creacion=datetime.datetime.now(),
-            extension_final=ExtensionFinal[new_format_str.upper()],
+            extension_final=new_format,
         )
 
         db.session.add(nueva_tarea)
         db.session.commit()
 
-        compress_file_and_update_status.delay(nueva_tarea.id)
+        #compress_file_and_update_status.delay(nueva_tarea.id)
+        compress_file_and_update_status.apply_async((nueva_tarea.id,), countdown=10)
 
         return {'mensaje': 'Tarea creada exitosamente'}, 201
 
@@ -134,5 +136,26 @@ class VistaTaskId(Resource):
 
 
 class VistaFiles(Resource):
-    def get(self):
-        return None
+    @jwt_required()
+    def get(self, filename):
+        user_id = get_jwt_identity()['usuario']
+        base_name, file_ext = os.path.splitext(filename)
+        print(f"Extension: {file_ext}") 
+        if file_ext == '.zip' or file_ext == '.gz' or file_ext == '.bz2':
+            folder = PROCESSED_FOLDER
+        else:
+            folder = UPLOAD_FOLDER
+
+        file_path = os.path.join(folder, filename)
+        if not os.path.exists(file_path):
+            logging.error(f"File not found at path: {file_path}")
+            return {'mensaje': 'Archivo no encontrado'}, 404
+
+        response = make_response(send_from_directory(folder, filename))
+        response.cache_control.no_cache = True
+        response.cache_control.no_store = True
+        response.cache_control.must_revalidate = True
+        response.headers['Pragma'] = 'no-cache'
+        response.expires = 0
+        return response
+

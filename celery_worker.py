@@ -6,7 +6,7 @@ from celery import Celery
 from modelos.modelos import EstadoConversion, ExtensionFinal, TareaConversion, db
 from config import app, UPLOAD_FOLDER
 
-celery = Celery("sistema_conversion", broker="redis://localhost:6379/0", backend="redis://localhost:6379/0")
+celery = Celery("sistema_conversion", broker="redis://redis:6379/0", backend="redis://redis:6379/0")
 
 app.app_context().push()
 

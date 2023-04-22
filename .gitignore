@@ -150,3 +150,7 @@ sistema_conversion.db
 # System files
 .DS_Store
 Thumbs.db
+
+# sha files
+cloud
+cloud.pub

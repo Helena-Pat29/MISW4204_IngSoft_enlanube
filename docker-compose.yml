@@ -37,7 +37,7 @@ services:
       - '6379:6379'
   celery:
     build: .
-    command: ["/usr/local/bin/wait_for_postgres.sh", "db", "celery", "-A", "celery_worker.celery", "worker", "--loglevel=info"]
+    command: ["python", "/app/wait_for_postgres.py", "&&", "celery", "-A", "celery_worker.celery", "worker", "--loglevel=info"]
     depends_on:
       - web
       - redis

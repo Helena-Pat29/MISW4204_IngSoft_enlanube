@@ -13,10 +13,10 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=sistema_conversion
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=10.128.0.5
     volumes:
-      - uploaded-files:/tmp/Sist_Conv_Files_Uploaded
-      - processed-files:/tmp/Sist_Conv_Files_Processed
+      - /nfs/uploaded-files:/tmp/Sist_Conv_Files_Uploaded
+      - /nfs/processed-files:/tmp/Sist_Conv_Files_Processed
   nginx:
     image: "nginx:latest"
     ports:
@@ -45,8 +45,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
     volumes:
-      - uploaded-files:/tmp/Sist_Conv_Files_Uploaded
-      - processed-files:/tmp/Sist_Conv_Files_Processed
+      - /nfs/uploaded-files:/tmp/Sist_Conv_Files_Uploaded
+      - /nfs/processed-files:/tmp/Sist_Conv_Files_Processed
 
 volumes:
   uploaded-files:

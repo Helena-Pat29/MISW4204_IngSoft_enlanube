@@ -6,7 +6,10 @@ from celery import Celery
 from modelos.modelos import EstadoConversion, ExtensionFinal, TareaConversion, db
 from config import app, UPLOAD_FOLDER, PROCESSED_FOLDER
 
-celery = Celery("sistema_conversion", broker="redis://redis:6379/0", backend="redis://redis:6379/0")
+redis_url = app.config['REDIS_URL']
+print("Using redis_url:", redis_url)
+
+celery = Celery("sistema_conversion", broker=redis_url, backend=redis_url)
 
 app.app_context().push()
 

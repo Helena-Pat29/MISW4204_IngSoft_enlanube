@@ -1,5 +1,5 @@
 # Use the official Python base image
-FROM python:3.9
+FROM python:3.9-slim-buster
 
 # Set the working directory
 WORKDIR /app
@@ -17,12 +17,12 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Add this line to copy the wait-for-postgres.sh script
-COPY wait_for_postgres.sh /usr/local/bin/wait_for_postgres.sh
+# COPY wait_for_postgres.sh /usr/local/bin/wait_for_postgres.sh
 
-COPY wait_for_db.py /app/wait_for_db.py
+COPY wait_for_db.py /usr/local/bin/wait_for_db.py
 
 # Expose the port the app will run on
 EXPOSE 8000
 
 # Start the application
-CMD ["gunicorn", "-c", "gunicorn.conf.py", "app:app"]
+CMD ["sh", "-c", "python3 /usr/local/bin/wait_for_db.py && gunicorn --bind 0.0.0.0:8000 app:app"]

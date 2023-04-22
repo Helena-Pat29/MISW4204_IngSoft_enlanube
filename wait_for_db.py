@@ -4,11 +4,11 @@ import time
 import psycopg2
 
 def main():
-    db_host = os.environ.get('DB_HOST', 'db')
-    db_port = os.environ.get('DB_PORT', 5432)
-    db_name = os.environ.get('DB_NAME', 'sistema_conversion')
-    db_user = os.environ.get('DB_USER', 'postgres')
-    db_password = os.environ.get('DB_PASSWORD', 'admin')
+    db_host = os.environ.get('POSTGRES_HOST', 'db')
+    db_port = os.environ.get('POSTGRES_PORT', 5432)
+    db_name = os.environ.get('POSTGRES_DB', 'sistema_conversion')
+    db_user = os.environ.get('POSTGRES_USER', 'postgres')
+    db_password = os.environ.get('POSTGRES_PASSWORD', 'admin')
 
     retries = 5
     wait_time = 5

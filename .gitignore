@@ -154,3 +154,6 @@ Thumbs.db
 # sha files
 cloud
 cloud.pub
+
+#google cloud sdk
+google-cloud-sdk

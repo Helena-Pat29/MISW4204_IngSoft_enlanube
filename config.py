@@ -7,11 +7,12 @@ from celery import Celery
 from modelos import db
 from sqlalchemy import DDL,text
 from sqlalchemy.exc import ProgrammingError
+from google.cloud import storage
 
-UPLOAD_FOLDER = os.path.join(tempfile.gettempdir(), 'Sist_Conv_Files_Uploaded')
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-PROCESSED_FOLDER = os.path.join(tempfile.gettempdir(), 'Sist_Conv_Files_Processed')
-os.makedirs(PROCESSED_FOLDER, exist_ok=True)
+#Initialize the GCS client
+storage_client = storage.Client()
+UPLOAD_FOLDER = 'uploaded-files'
+PROCESSED_FOLDER = 'processed-files'
 db_user = os.environ.get('POSTGRES_USER', 'postgres')
 db_password = os.environ.get('POSTGRES_PASSWORD', 'admin')
 db_name = os.environ.get('POSTGRES_DB', 'sistema_conversion')

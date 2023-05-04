@@ -1,15 +1,19 @@
 import datetime
 import logging
+import tempfile
 import jwt
 from config import UPLOAD_FOLDER, PROCESSED_FOLDER
 from celery_worker import compress_file_and_update_status
-from flask import request, jsonify, current_app, send_from_directory, make_response
+from flask import request, jsonify, current_app, send_from_directory, make_response, send_file
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
 from modelos import db, Usuario, UsuarioSchema, EstadoConversion, TareaConversion, ExtensionFinal
 from modelos.modelos import EstadoTarea, TareaConversionSchema
 from utils import check_password, set_password
 from werkzeug.utils import secure_filename
+from utils import upload_blob
+from google.cloud import storage
+from mimetypes import guess_type
 import os
 
 usuario_schema = UsuarioSchema()
@@ -78,10 +82,17 @@ class VistaTasks(Resource):
         user_id = get_jwt_identity()['usuario']
         file = request.files['fileName']
         filename = secure_filename(file.filename)
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
+        
+        temp_file_path = os.path.join(tempfile.gettempdir(), filename)
+        file.save(temp_file_path)
+        print(f"File saved at: {temp_file_path}") 
+        bucket_name = "converter_files"
+        destination_blob_name = f"{UPLOAD_FOLDER}/{filename}"
+        upload_blob(bucket_name, temp_file_path, destination_blob_name)
+        os.remove(temp_file_path)
 
-        print(f"File saved at: {file_path}") 
+        print(f"File saved at: gs://{bucket_name}/{destination_blob_name}")
+
         new_format_str = request.form.get('newFormat')
 
         if not all([file, new_format_str]):
@@ -146,16 +157,29 @@ class VistaFiles(Resource):
         else:
             folder = UPLOAD_FOLDER
 
-        file_path = os.path.join(folder, filename)
-        if not os.path.exists(file_path):
-            logging.error(f"File not found at path: {file_path}")
+        bucket_name = "converter_files"
+        blob_name = f"{folder}/{filename}"
+
+        # Check if the blob exists
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(blob_name)
+
+        if not blob.exists():
+            logging.error(f"File not found in bucket: {blob_name}")
             return {'mensaje': 'Archivo no encontrado'}, 404
 
-        response = make_response(send_from_directory(folder, filename))
-        response.cache_control.no_cache = True
-        response.cache_control.no_store = True
-        response.cache_control.must_revalidate = True
-        response.headers['Pragma'] = 'no-cache'
-        response.expires = 0
+        # Download the file to a temporary location and send it as a response
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            blob.download_to_filename(temp_file.name)
+            temp_file.close()
+
+            # Send the temporary file as a response
+            response = make_response(send_file(temp_file.name, attachment_filename=filename, as_attachment=True))
+            response.headers['Content-Type'] = guess_type(filename)[0] or 'application/octet-stream'
+
+            # Delete the temporary file after the response is sent
+            os.remove(temp_file.name)
+            
         return response
 

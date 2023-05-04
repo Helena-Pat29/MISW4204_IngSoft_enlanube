@@ -13,10 +13,10 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=sistema_conversion
-      - POSTGRES_HOST=10.128.0.5
+      - POSTGRES_HOST=34.72.46.43
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/cloud-uniandes-8-90b478e8abe1.json
     volumes:
-      - /nfs/uploaded-files:/tmp/Sist_Conv_Files_Uploaded
-      - /nfs/processed-files:/tmp/Sist_Conv_Files_Processed
+      - /app/cloud-uniandes-8-90b478e8abe1.json:/app/cloud-uniandes-8-90b478e8abe1.json
   nginx:
     image: "nginx:latest"
     ports:
@@ -44,10 +44,6 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/cloud-uniandes-8-90b478e8abe1.json
     volumes:
-      - /nfs/uploaded-files:/tmp/Sist_Conv_Files_Uploaded
-      - /nfs/processed-files:/tmp/Sist_Conv_Files_Processed
-
-volumes:
-  uploaded-files:
-  processed-files:
+      - /app/cloud-uniandes-8-90b478e8abe1.json:/app/cloud-uniandes-8-90b478e8abe1.json

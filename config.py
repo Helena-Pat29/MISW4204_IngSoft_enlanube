@@ -29,6 +29,9 @@ app.config['JWT_SECRET_KEY'] = 'frase-secreta'
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
+app.config['PROJECT_ID'] = os.environ.get('PROJECT_ID', '')
+app.config['TOPIC_ID'] = os.environ.get('TOPIC_ID', '')
+app.config['SUBSCRIPTION_ID'] = os.environ.get('SUBSCRIPTION_ID', '')
 app.config['REDIS_URL'] = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 print("REDIS_URL:", app.config['REDIS_URL'])
 

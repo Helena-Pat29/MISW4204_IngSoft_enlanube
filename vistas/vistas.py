@@ -2,8 +2,7 @@ import datetime
 import logging
 import tempfile
 import jwt
-from config import UPLOAD_FOLDER, PROCESSED_FOLDER
-from celery_worker import compress_file_and_update_status
+from config import app, UPLOAD_FOLDER, PROCESSED_FOLDER
 from flask import request, jsonify, current_app, send_from_directory, make_response, send_file
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
@@ -13,12 +12,21 @@ from utils import check_password, set_password
 from werkzeug.utils import secure_filename
 from utils import upload_blob
 from google.cloud import storage
+from google.cloud import pubsub_v1
+from google.auth import jwt
 from mimetypes import guess_type
 import os
+import json
 
 usuario_schema = UsuarioSchema()
 tarea_conversion_schema_single = TareaConversionSchema()
 tarea_conversion_schema_many = TareaConversionSchema(many=True)
+
+project_id = app.config['PROJECT_ID']
+topic_id = app.config['TOPIC_ID']
+
+publisher = pubsub_v1.PublisherClient()
+topic_path = publisher.topic_path(project_id, topic_id)
 
 class VistaSignUp(Resource):
 
@@ -115,8 +123,10 @@ class VistaTasks(Resource):
         db.session.add(nueva_tarea)
         db.session.commit()
 
+        future = publisher.publish(topic_path, nueva_tarea.id)
+        future.result()
         #compress_file_and_update_status.delay(nueva_tarea.id)
-        compress_file_and_update_status.apply_async((nueva_tarea.id,), countdown=10)
+        #compress_file_and_update_status.apply_async((nueva_tarea.id,), countdown=10)
 
         return {'mensaje': 'Tarea creada exitosamente'}, 201
 

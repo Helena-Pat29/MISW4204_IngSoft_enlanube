@@ -25,3 +25,4 @@ psycopg2-binary==2.9.6
 redis==3.5.3
 celery==5.2.3
 google-cloud-storage
+google-cloud-pubsub

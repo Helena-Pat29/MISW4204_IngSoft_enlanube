@@ -1,51 +1,32 @@
+import logging
 import os
 import tempfile
 import zipfile
 import tarfile
 
-from celery import Celery
+from concurrent.futures import TimeoutError
+from google.cloud import pubsub_v1
 from modelos.modelos import EstadoConversion, ExtensionFinal, TareaConversion, db
 from config import app, UPLOAD_FOLDER, PROCESSED_FOLDER
 from utils import download_blob, upload_blob
 
-redis_url = app.config['REDIS_URL']
-print("Using redis_url:", redis_url)
+timeout = 10.0
+project_id = app.config['PROJECT_ID']
+subscription_id = app.config['SUBSCRIPTION_ID']
 
-celery = Celery("sistema_conversion", broker=redis_url, backend=redis_url)
-
+subscriber = pubsub_v1.SubscriberClient()
+subscription_path = subscriber.subscription_path(project_id, subscription_id)
 app.app_context().push()
 
-#@celery.task(bind=True, max_retries=5)
-@celery.task()
-def compress_file_and_update_status(tarea_id):
-    tarea = TareaConversion.query.get(tarea_id)
-    print(f"Attempting to compress file with ID: {tarea_id}")
-    if not tarea:
-        return
 
-    tarea.estado_conversion = EstadoConversion.PROCESSING
-    db.session.commit()
+def callback(message: pubsub_v1.subscriber.message.Message) -> None:
+    logging.info(f"Received {message}.")
+    message.ack()
 
-    try:
-        # Compress the file
-        compress_file(tarea)
-        tarea.estado_conversion = EstadoConversion.COMPLETED
 
-        # For debugging purposes
-        # except FileNotFoundError as e:
-        #     # Retry with exponential backoff
-        #     countdown = 2 ** self.request.retries
-        #     print(f"File not found, retrying in {countdown} seconds...")
-        #     self.retry(countdown=countdown, exc=e)
-        #     tarea.estado_conversion = EstadoConversion.FAILED
-    except Exception as e:
-        tarea.estado_conversion = EstadoConversion.FAILED
-        print(f"Failed to compress the file: {e}")
-        print(f"Exception type: {type(e)}")
-        import traceback
-        print(f"Traceback: {traceback.format_exc()}")
+streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+print(f"Listening for messages on {subscription_path}..\n")
 
-    db.session.commit()
 
 def compress_file(tarea):
     # Download the uploaded file from the GCS bucket
@@ -84,12 +65,41 @@ def compress_file(tarea):
 
             temp_output_file.close()
             # Upload the output file to the GCS bucket
-            upload_blob(bucket_name, temp_output_file.name, output_blob_name )
+            upload_blob(bucket_name, temp_output_file.name, output_blob_name)
             os.remove(temp_output_file.name)
 
     temp_input_file.close()
     os.remove(temp_input_file.name)
-    
+
     # Update the database record with the output file's blob name
     tarea.archivo_salida = output_blob_name
     db.session.commit()
+
+
+with subscriber:
+    try:
+        streaming_pull_future.result(timeout=timeout)
+        print(f"streaming_pull_future::::: {streaming_pull_future}")
+        tarea_id = streaming_pull_future
+        tarea = TareaConversion.query.get(tarea_id)
+        print(f"Attempting to compress file with ID: {tarea_id}")
+
+        tarea.estado_conversion = EstadoConversion.PROCESSING
+        db.session.commit()
+
+        # Compress the file
+        compress_file(tarea)
+        tarea.estado_conversion = EstadoConversion.COMPLETED
+    except TimeoutError:
+        streaming_pull_future.cancel()
+        streaming_pull_future.result()
+    except Exception as e:
+        tarea.estado_conversion = EstadoConversion.FAILED
+        print(f"Failed to compress the file: {e}")
+        print(f"Exception type: {type(e)}")
+        import traceback
+
+        print(f"Traceback: {traceback.format_exc()}")
+
+    db.session.commit()
+

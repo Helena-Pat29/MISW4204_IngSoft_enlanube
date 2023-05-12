@@ -123,10 +123,14 @@ class VistaTasks(Resource):
         db.session.add(nueva_tarea)
         db.session.commit()
 
-        future = publisher.publish(topic_path, nueva_tarea.id)
-        future.result()
+
         #compress_file_and_update_status.delay(nueva_tarea.id)
         #compress_file_and_update_status.apply_async((nueva_tarea.id,), countdown=10)
+
+        # Publish the tarea ID to the Pub/Sub topic
+        data = str(nueva_tarea.id)
+        data = data.encode("utf-8")
+        publisher.publish(topic_path, data=data)
 
         return {'mensaje': 'Tarea creada exitosamente'}, 201
 

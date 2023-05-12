@@ -5,6 +5,8 @@ import zipfile
 import tarfile
 
 from concurrent.futures import TimeoutError
+
+import celery
 from google.cloud import pubsub_v1
 from modelos.modelos import EstadoConversion, ExtensionFinal, TareaConversion, db
 from config import app, UPLOAD_FOLDER, PROCESSED_FOLDER
@@ -23,11 +25,7 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     logging.info(f"Received {message}.")
     message.ack()
 
-
-streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-print(f"Listening for messages on {subscription_path}..\n")
-
-
+@celery.Task
 def compress_file(tarea):
     # Download the uploaded file from the GCS bucket
     bucket_name = "converter_files"
@@ -74,6 +72,10 @@ def compress_file(tarea):
     # Update the database record with the output file's blob name
     tarea.archivo_salida = output_blob_name
     db.session.commit()
+
+
+streaming_pull_future = subscriber.subscribe(subscription_path, compress_file)
+print(f"Listening for messages on {subscription_path}..\n")
 
 
 with subscriber:

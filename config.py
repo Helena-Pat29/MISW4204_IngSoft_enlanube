@@ -3,7 +3,7 @@ import tempfile
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
-from celery import Celery
+#from celery import Celery
 from modelos import db
 from sqlalchemy import DDL,text
 from sqlalchemy.exc import ProgrammingError
@@ -29,8 +29,11 @@ app.config['JWT_SECRET_KEY'] = 'frase-secreta'
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
-app.config['REDIS_URL'] = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
-print("REDIS_URL:", app.config['REDIS_URL'])
+app.config['PROJECT_ID'] = os.environ.get('PROJECT_ID', '')
+app.config['TOPIC_ID'] = os.environ.get('TOPIC_ID', '')
+app.config['SUBSCRIPTION_ID'] = os.environ.get('SUBSCRIPTION_ID', '')
+#app.config['REDIS_URL'] = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
+#print("REDIS_URL:", app.config['REDIS_URL'])
 
 jwt = JWTManager(app)
 
@@ -44,7 +47,7 @@ db.init_app(app)
 #     db.engine.execute(DDL("CREATE TYPE extensionfinal AS ENUM ('ZIP', 'TAR_GZ', 'TAR_BZ2')"))
 db.create_all()
 
-def create_celery_app(app):
+""" def create_celery_app(app):
     celery = Celery(app.name, broker=app.config['REDIS_URL'])
     celery.conf.update(app.config)
-    return celery
+    return celery """

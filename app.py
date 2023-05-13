@@ -1,8 +1,8 @@
 from flask_restful import Api
 from vistas import VistaSignUp, VistaLogIn, VistaTasks, VistaTaskId, VistaFiles
-from config import app, create_celery_app
+from config import app
 
-celery = create_celery_app(app)
+#celery = create_celery_app(app)
 
 api = Api(app)
 api.add_resource(VistaSignUp, '/api/auth/signup')

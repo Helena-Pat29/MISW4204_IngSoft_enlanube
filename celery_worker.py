@@ -2,21 +2,20 @@ import os
 import tempfile
 import zipfile
 import tarfile
-
+from google.cloud import pubsub_v1
 from celery import Celery
 from modelos.modelos import EstadoConversion, ExtensionFinal, TareaConversion, db
 from config import app, UPLOAD_FOLDER, PROCESSED_FOLDER
 from utils import download_blob, upload_blob
 
-redis_url = app.config['REDIS_URL']
-print("Using redis_url:", redis_url)
+#redis_url = app.config['REDIS_URL']
+#print("Using redis_url:", redis_url)
 
-celery = Celery("sistema_conversion", broker=redis_url, backend=redis_url)
-
-app.app_context().push()
+project_id = app.config['PROJECT_ID']
+subscription_id = app.config['SUBSCRIPTION_ID']
 
 #@celery.task(bind=True, max_retries=5)
-@celery.task()
+#@celery.task()
 def compress_file_and_update_status(tarea_id):
     tarea = TareaConversion.query.get(tarea_id)
     print(f"Attempting to compress file with ID: {tarea_id}")
@@ -93,3 +92,23 @@ def compress_file(tarea):
     # Update the database record with the output file's blob name
     tarea.archivo_salida = output_blob_name
     db.session.commit()
+
+def callback(message):
+    with app.app_context():
+        print("Received message:", message)
+        tarea_id = int(message.data)
+        compress_file_and_update_status(tarea_id)
+        message.ack()
+
+app.app_context().push()
+
+subscriber = pubsub_v1.SubscriberClient()
+subscription_path = subscriber.subscription_path(project_id, subscription_id)
+
+streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+print(f"Listening for messages on {subscription_path}..\n")
+
+# Block on the streaming pull operation
+streaming_pull_future.result()
+
+#celery = Celery("sistema_conversion", broker=redis_url, backend=redis_url)

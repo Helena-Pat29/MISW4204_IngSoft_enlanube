@@ -1,0 +1,79 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+14/05/2023 23:10,975,CreateTask,201,Created,Escenario1 1-7,text,true,,195,585455,20,20,http://35.201.67.148/api/tasks,974,0,0
+14/05/2023 23:10,1017,CreateTask,503,Service Unavailable,Escenario1 1-8,text,false,,231,585459,20,20,http://35.201.67.148/api/tasks,1017,0,0
+14/05/2023 23:10,1168,CreateTask,201,Created,Escenario1 1-11,text,true,,195,585483,20,20,http://35.201.67.148/api/tasks,1168,0,0
+14/05/2023 23:10,716,CreateTask,503,Service Unavailable,Escenario1 1-4,text,false,,231,585459,20,20,http://35.201.67.148/api/tasks,716,0,0
+14/05/2023 23:10,827,CreateTask,201,Created,Escenario1 1-17,text,true,,195,585447,20,20,http://35.201.67.148/api/tasks,827,0,0
+14/05/2023 23:10,1569,CreateTask,201,Created,Escenario1 1-18,text,true,,195,585459,20,20,http://35.201.67.148/api/tasks,1569,0,0
+14/05/2023 23:10,971,CreateTask,201,Created,Escenario1 1-13,text,true,,195,585467,20,20,http://35.201.67.148/api/tasks,971,0,0
+14/05/2023 23:10,1044,CreateTask,503,Service Unavailable,Escenario1 1-15,text,false,,231,585451,20,20,http://35.201.67.148/api/tasks,1044,0,0
+14/05/2023 23:10,2005,CreateTask,201,Created,Escenario1 1-10,text,true,,195,585447,20,20,http://35.201.67.148/api/tasks,2005,0,0
+14/05/2023 23:10,1250,CreateTask,201,Created,Escenario1 1-9,text,true,,195,585467,20,20,http://35.201.67.148/api/tasks,1250,0,0
+14/05/2023 23:10,2422,CreateTask,503,Service Unavailable,Escenario1 1-6,text,false,,231,585471,20,20,http://35.201.67.148/api/tasks,2422,0,0
+14/05/2023 23:10,2202,CreateTask,201,Created,Escenario1 1-19,text,true,,195,585447,20,20,http://35.201.67.148/api/tasks,2202,0,0
+14/05/2023 23:10,939,CreateTask,503,Service Unavailable,Escenario1 1-5,text,false,,231,585483,20,20,http://35.201.67.148/api/tasks,939,0,0
+14/05/2023 23:10,2456,CreateTask,503,Service Unavailable,Escenario1 1-1,text,false,,231,585459,20,20,http://35.201.67.148/api/tasks,2456,0,0
+14/05/2023 23:10,1711,CreateTask,201,Created,Escenario1 1-20,text,true,,195,585451,20,20,http://35.201.67.148/api/tasks,1710,0,0
+14/05/2023 23:10,2658,CreateTask,500,Internal Server Error,Escenario1 1-3,text,false,,279,585467,20,20,http://35.201.67.148/api/tasks,2658,0,0
+14/05/2023 23:10,1179,CreateTask,500,Internal Server Error,Escenario1 1-16,text,false,,279,585483,20,20,http://35.201.67.148/api/tasks,1179,0,0
+14/05/2023 23:10,1225,CreateTask,503,Service Unavailable,Escenario1 1-12,text,false,,231,585467,20,20,http://35.201.67.148/api/tasks,1225,0,0
+14/05/2023 23:10,2058,CreateTask,201,Created,Escenario1 1-2,text,true,,195,585471,20,20,http://35.201.67.148/api/tasks,2058,0,0
+14/05/2023 23:10,2267,CreateTask,500,Internal Server Error,Escenario1 1-14,text,false,,279,585463,20,20,http://35.201.67.148/api/tasks,2267,0,0
+14/05/2023 23:11,1128,CreateTask,500,Internal Server Error,Escenario1 1-7,text,false,,279,585467,20,20,http://35.201.67.148/api/tasks,1128,0,0
+14/05/2023 23:11,1105,CreateTask,201,Created,Escenario1 1-8,text,true,,195,585471,20,20,http://35.201.67.148/api/tasks,1105,0,0
+14/05/2023 23:11,1083,CreateTask,201,Created,Escenario1 1-11,text,true,,195,585463,20,20,http://35.201.67.148/api/tasks,1082,0,0
+14/05/2023 23:11,1393,CreateTask,201,Created,Escenario1 1-17,text,true,,195,585451,20,20,http://35.201.67.148/api/tasks,1393,0,0
+14/05/2023 23:11,951,CreateTask,500,Internal Server Error,Escenario1 1-10,text,false,,279,585443,20,20,http://35.201.67.148/api/tasks,950,0,0
+14/05/2023 23:11,1229,CreateTask,500,Internal Server Error,Escenario1 1-18,text,false,,279,585471,20,20,http://35.201.67.148/api/tasks,1229,0,0
+14/05/2023 23:11,1126,CreateTask,500,Internal Server Error,Escenario1 1-13,text,false,,279,585483,20,20,http://35.201.67.148/api/tasks,1126,0,0
+14/05/2023 23:11,1663,CreateTask,500,Internal Server Error,Escenario1 1-4,text,false,,279,585443,20,20,http://35.201.67.148/api/tasks,1663,0,0
+14/05/2023 23:11,1623,CreateTask,201,Created,Escenario1 1-15,text,true,,195,585483,20,20,http://35.201.67.148/api/tasks,1623,0,0
+14/05/2023 23:11,846,CreateTask,201,Created,Escenario1 1-5,text,true,,195,585455,20,20,http://35.201.67.148/api/tasks,846,0,0
+14/05/2023 23:11,1162,CreateTask,500,Internal Server Error,Escenario1 1-19,text,false,,279,585463,20,20,http://35.201.67.148/api/tasks,1162,0,0
+14/05/2023 23:11,880,CreateTask,503,Service Unavailable,Escenario1 1-1,text,false,,231,585471,20,20,http://35.201.67.148/api/tasks,880,0,0
+14/05/2023 23:11,634,CreateTask,500,Internal Server Error,Escenario1 1-12,text,false,,279,585483,20,20,http://35.201.67.148/api/tasks,634,0,0
+14/05/2023 23:11,900,CreateTask,500,Internal Server Error,Escenario1 1-3,text,false,,279,585459,20,20,http://35.201.67.148/api/tasks,899,0,0
+14/05/2023 23:11,1803,CreateTask,201,Created,Escenario1 1-6,text,true,,195,585483,20,20,http://35.201.67.148/api/tasks,1803,0,0
+14/05/2023 23:11,1884,CreateTask,500,Internal Server Error,Escenario1 1-9,text,false,,279,585475,20,20,http://35.201.67.148/api/tasks,1884,0,0
+14/05/2023 23:11,1428,CreateTask,500,Internal Server Error,Escenario1 1-16,text,false,,279,585451,20,20,http://35.201.67.148/api/tasks,1428,0,0
+14/05/2023 23:11,1681,CreateTask,503,Service Unavailable,Escenario1 1-20,text,false,,231,585467,20,20,http://35.201.67.148/api/tasks,1681,0,0
+14/05/2023 23:11,787,CreateTask,500,Internal Server Error,Escenario1 1-14,text,false,,279,585467,20,20,http://35.201.67.148/api/tasks,785,0,0
+14/05/2023 23:11,794,CreateTask,201,Created,Escenario1 1-3,text,true,,195,585467,20,20,http://35.201.67.148/api/tasks,793,0,0
+14/05/2023 23:11,2392,CreateTask,201,Created,Escenario1 1-2,text,true,,195,585447,20,20,http://35.201.67.148/api/tasks,2392,0,0
+14/05/2023 23:11,775,CreateTask,500,Internal Server Error,Escenario1 1-17,text,false,,279,585467,20,20,http://35.201.67.148/api/tasks,775,0,0
+14/05/2023 23:11,2154,CreateTask,500,Internal Server Error,Escenario1 1-18,text,false,,279,585451,20,20,http://35.201.67.148/api/tasks,2154,0,0
+14/05/2023 23:11,841,CreateTask,500,Internal Server Error,Escenario1 1-8,text,false,,279,585451,20,20,http://35.201.67.148/api/tasks,841,0,0
+14/05/2023 23:11,1756,CreateTask,201,Created,Escenario1 1-7,text,true,,195,585467,20,20,http://35.201.67.148/api/tasks,1756,0,0
+14/05/2023 23:11,697,CreateTask,201,Created,Escenario1 1-5,text,true,,195,585451,20,20,http://35.201.67.148/api/tasks,697,0,0
+14/05/2023 23:11,1536,CreateTask,201,Created,Escenario1 1-11,text,true,,195,585475,20,20,http://35.201.67.148/api/tasks,1535,0,0
+14/05/2023 23:11,3359,CreateTask,201,Created,Escenario1 1-10,text,true,,195,585451,20,20,http://35.201.67.148/api/tasks,3359,0,0
+14/05/2023 23:11,939,CreateTask,500,Internal Server Error,Escenario1 1-1,text,false,,279,585455,20,20,http://35.201.67.148/api/tasks,939,0,0
+14/05/2023 23:11,785,CreateTask,500,Internal Server Error,Escenario1 1-18,text,false,,279,585447,20,20,http://35.201.67.148/api/tasks,785,0,0
+14/05/2023 23:11,4855,CreateTask,500,Internal Server Error,Escenario1 1-13,text,false,,279,585443,20,20,http://35.201.67.148/api/tasks,4855,0,0
+14/05/2023 23:11,834,CreateTask,201,Created,Escenario1 1-13,text,true,,195,585443,20,20,http://35.201.67.148/api/tasks,834,0,0
+14/05/2023 23:11,863,CreateTask,201,Created,Escenario1 1-14,text,true,,195,585451,60,60,http://35.201.67.148/api/tasks,863,0,0
+14/05/2023 23:11,43521,CreateTask,503,Service Unavailable,Escenario1 1-16,text,false,,231,585443,60,60,http://35.201.67.148/api/tasks,43521,0,0
+14/05/2023 23:11,47759,CreateTask,503,Service Unavailable,Escenario1 1-4,text,false,,231,585475,60,60,http://35.201.67.148/api/tasks,47759,0,0
+14/05/2023 23:11,47096,CreateTask,503,Service Unavailable,Escenario1 1-20,text,false,,231,585443,60,60,http://35.201.67.148/api/tasks,47096,0,0
+14/05/2023 23:11,48553,CreateTask,503,Service Unavailable,Escenario1 1-12,text,false,,231,585463,60,60,http://35.201.67.148/api/tasks,48553,0,0
+14/05/2023 23:11,49738,CreateTask,503,Service Unavailable,Escenario1 1-19,text,false,,231,585479,60,60,http://35.201.67.148/api/tasks,49737,0,0
+14/05/2023 23:11,53126,CreateTask,503,Service Unavailable,Escenario1 1-6,text,false,,231,585443,120,120,http://35.201.67.148/api/tasks,53126,0,0
+14/05/2023 23:11,56366,CreateTask,503,Service Unavailable,Escenario1 1-15,text,false,,231,585463,120,120,http://35.201.67.148/api/tasks,56366,0,0
+14/05/2023 23:11,58493,CreateTask,201,Created,Escenario1 1-9,text,true,,195,585451,120,120,http://35.201.67.148/api/tasks,58493,0,0
+14/05/2023 23:12,819,CreateTask,201,Created,Escenario1 1-3,text,true,,195,585451,120,120,http://35.201.67.148/api/tasks,819,0,4
+14/05/2023 23:11,66667,CreateTask,201,Created,Escenario1 1-2,text,true,,195,585475,120,120,http://35.201.67.148/api/tasks,66667,0,0
+14/05/2023 23:11,73898,CreateTask,201,Created,Escenario1 1-8,text,true,,195,585479,120,120,http://35.201.67.148/api/tasks,73898,0,0
+14/05/2023 23:11,79154,CreateTask,201,Created,Escenario1 1-17,text,true,,195,585443,120,120,http://35.201.67.148/api/tasks,79154,0,0
+14/05/2023 23:11,100205,CreateTask,201,Created,Escenario1 1-10,text,true,,195,585479,200,200,http://35.201.67.148/api/tasks,100205,0,0
+14/05/2023 23:11,102683,CreateTask,201,Created,Escenario1 1-18,text,true,,195,585455,200,200,http://35.201.67.148/api/tasks,102683,0,0
+14/05/2023 23:11,103930,CreateTask,201,Created,Escenario1 1-13,text,true,,195,585467,200,200,http://35.201.67.148/api/tasks,103930,0,0
+14/05/2023 23:11,108680,CreateTask,201,Created,Escenario1 1-28,text,true,,195,585483,165,165,http://35.201.67.148/api/tasks,108680,0,0
+14/05/2023 23:11,111017,CreateTask,201,Created,Escenario1 1-35,text,true,,195,585447,164,164,http://35.201.67.148/api/tasks,111017,0,0
+14/05/2023 23:11,113210,CreateTask,201,Created,Escenario1 1-32,text,true,,195,585471,162,162,http://35.201.67.148/api/tasks,113210,0,0
+14/05/2023 23:11,115199,CreateTask,201,Created,Escenario1 1-26,text,true,,195,585463,161,161,http://35.201.67.148/api/tasks,115199,0,0
+14/05/2023 23:11,92742,CreateTask,201,Created,Escenario1 1-75,text,true,,195,585471,93,93,http://35.201.67.148/api/tasks,92742,0,0
+14/05/2023 23:12,80144,CreateTask,201,Created,Escenario1 1-3,text,true,,195,585483,45,45,http://35.201.67.148/api/tasks,80144,0,0
+14/05/2023 23:12,61267,CreateTask,201,Created,Escenario1 1-5,text,true,,195,585463,9,9,http://35.201.67.148/api/tasks,61267,0,8
+14/05/2023 23:12,76756,CreateTask,201,Created,Escenario1 1-7,text,true,,195,585451,8,8,http://35.201.67.148/api/tasks,76756,0,8
+14/05/2023 23:12,57734,CreateTask,503,Service Unavailable,Escenario1 1-11,text,false,,231,585459,4,4,http://35.201.67.148/api/tasks,57734,0,3
+14/05/2023 23:12,53784,CreateTask,503,Service Unavailable,Escenario1 1-1,text,false,,231,585483,1,1,http://35.201.67.148/api/tasks,53784,0,2

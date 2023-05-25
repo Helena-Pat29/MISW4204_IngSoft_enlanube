@@ -16,7 +16,7 @@ PROCESSED_FOLDER = 'processed-files'
 db_user = os.environ.get('POSTGRES_USER', 'postgres')
 db_password = os.environ.get('POSTGRES_PASSWORD', 'admin')
 db_name = os.environ.get('POSTGRES_DB', 'sistema_conversion')
-db_host = os.environ.get('POSTGRES_HOST', 'db')
+db_host = os.environ.get('POSTGRES_HOST', '34.29.148.57')
 db_port = os.environ.get('POSTGRES_PORT', 5432)
 
 app = Flask(__name__)

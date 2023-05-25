@@ -2,20 +2,12 @@ import os
 import tempfile
 import zipfile
 import tarfile
-from google.cloud import pubsub_v1
-from celery import Celery
 from modelos.modelos import EstadoConversion, ExtensionFinal, TareaConversion, db
-from config import app, UPLOAD_FOLDER, PROCESSED_FOLDER
+from config import UPLOAD_FOLDER, PROCESSED_FOLDER
 from utils import download_blob, upload_blob
+import base64
 
-#redis_url = app.config['REDIS_URL']
-#print("Using redis_url:", redis_url)
 
-project_id = app.config['PROJECT_ID']
-subscription_id = app.config['SUBSCRIPTION_ID']
-
-#@celery.task(bind=True, max_retries=5)
-#@celery.task()
 def compress_file_and_update_status(tarea_id):
     tarea = TareaConversion.query.get(tarea_id)
     print(f"Attempting to compress file with ID: {tarea_id}")
@@ -30,13 +22,6 @@ def compress_file_and_update_status(tarea_id):
         compress_file(tarea)
         tarea.estado_conversion = EstadoConversion.COMPLETED
 
-        # For debugging purposes
-        # except FileNotFoundError as e:
-        #     # Retry with exponential backoff
-        #     countdown = 2 ** self.request.retries
-        #     print(f"File not found, retrying in {countdown} seconds...")
-        #     self.retry(countdown=countdown, exc=e)
-        #     tarea.estado_conversion = EstadoConversion.FAILED
     except Exception as e:
         tarea.estado_conversion = EstadoConversion.FAILED
         print(f"Failed to compress the file: {e}")
@@ -45,6 +30,7 @@ def compress_file_and_update_status(tarea_id):
         print(f"Traceback: {traceback.format_exc()}")
 
     db.session.commit()
+
 
 def compress_file(tarea):
     # Download the uploaded file from the GCS bucket
@@ -83,32 +69,23 @@ def compress_file(tarea):
 
             temp_output_file.close()
             # Upload the output file to the GCS bucket
-            upload_blob(bucket_name, temp_output_file.name, output_blob_name )
+            upload_blob(bucket_name, temp_output_file.name, output_blob_name)
             os.remove(temp_output_file.name)
 
     temp_input_file.close()
     os.remove(temp_input_file.name)
-    
+
     # Update the database record with the output file's blob name
     tarea.archivo_salida = output_blob_name
     db.session.commit()
 
-def callback(message):
-    with app.app_context():
-        print("Received message:", message)
-        tarea_id = int(message.data)
-        compress_file_and_update_status(tarea_id)
-        message.ack()
 
-app.app_context().push()
+def subscribe(event, context):
+    """Triggered from a message on a Cloud Pub/Sub topic.
+    Args:
+         event (dict): Event payload.
+         context (google.cloud.functions.Context): Metadata for the event.
+    """
 
-subscriber = pubsub_v1.SubscriberClient()
-subscription_path = subscriber.subscription_path(project_id, subscription_id)
-
-streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-print(f"Listening for messages on {subscription_path}..\n")
-
-# Block on the streaming pull operation
-streaming_pull_future.result()
-
-#celery = Celery("sistema_conversion", broker=redis_url, backend=redis_url)
+    pubsub_message = base64.b64decode(event['data']).decode('utf-8')
+    compress_file_and_update_status(int(pubsub_message))
